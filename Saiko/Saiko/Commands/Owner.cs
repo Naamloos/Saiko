@@ -86,7 +86,7 @@ namespace Saiko.Commands
             var globals = new EvaluationEnvironment(ctx);
             var sopts = ScriptOptions.Default
                 .WithImports("System", "System.Collections.Generic", "System.Linq", "System.Net.Http", "System.Net.Http.Headers", "System.Reflection", "System.Text", "System.Threading.Tasks",
-                    "DSharpPlus", "DSharpPlus.CommandsNext", "DSharpPlus.Interactivity", "SaikoPie.Helpers")
+                    "DSharpPlus", "DSharpPlus.CommandsNext", "DSharpPlus.Interactivity", "Saiko.Helpers")
                 .WithReferences(AppDomain.CurrentDomain.GetAssemblies().Where(xa => !xa.IsDynamic && !string.IsNullOrWhiteSpace(xa.Location)));
 
             var sw1 = Stopwatch.StartNew();

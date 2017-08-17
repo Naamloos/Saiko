@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using DSharpPlus;
 using DSharpPlus.Interactivity;
@@ -70,6 +67,12 @@ namespace Saiko
         public async Task ConnectAsync()
         {
             BotStart = DateTimeOffset.Now;
+
+            if(Type.GetType("Mono.Runtime") != null) // Checking if ran on mono
+                Client.SetWebSocketClient<WebSocketSharpClient>();
+            else if (Environment.OSVersion.Version.Major <= 6 && Environment.OSVersion.Version.Minor < 2) // Win7 = 6.1, Win8 is 6.2. Min is Win8
+                Client.SetWebSocketClient<WebSocket4NetClient>();
+
             await Client.ConnectAsync();
         }
     }
