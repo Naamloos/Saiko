@@ -68,10 +68,18 @@ namespace Saiko
         {
             BotStart = DateTimeOffset.Now;
 
-            if(Type.GetType("Mono.Runtime") != null) // Checking if ran on mono
+            if (Type.GetType("Mono.Runtime") != null) // Checking if ran on mono
+            {
                 Client.SetWebSocketClient<WebSocketSharpClient>();
+                Client.DebugLogger.LogMessage(LogLevel.Info, "Saiko-Bot", "Mono runtime detected, using WebSocketSharp", DateTime.Now);
+            }
             else if (Environment.OSVersion.Version.Major <= 6 && Environment.OSVersion.Version.Minor < 2) // Win7 = 6.1, Win8 is 6.2. Min is Win8
+            {
                 Client.SetWebSocketClient<WebSocket4NetClient>();
+                Client.DebugLogger.LogMessage(LogLevel.Info, "Saiko-Bot", "Windows 7 or below detected, using WebSocket4Net", DateTime.Now);
+            }
+            else
+                Client.DebugLogger.LogMessage(LogLevel.Info, "Saiko-Bot", "Windows 8 or up detected, using .NET WebSocket", DateTime.Now);
 
             await Client.ConnectAsync();
         }
