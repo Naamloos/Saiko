@@ -14,7 +14,7 @@ namespace Saiko
         public string Token = "your token here";
 
         [JsonProperty("prefix")]
-        public string Prefix = "+=";
+        public string Prefix = "";
 
         [JsonProperty("color")]
         private string _color = "#ffcff7";

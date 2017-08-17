@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -28,6 +29,9 @@ namespace Saiko
             }
             var cfg = JsonConvert.DeserializeObject<SaikoConfig>(File.ReadAllText("SaikoConfig.json"));
             #endregion
+
+            // Overriding because adding certificates for mono is a pain
+            ServicePointManager.ServerCertificateValidationCallback = (s, cert, chain, ssl) => true;
 
             // Let's make Saiko initialize
             SaikoBot = new SaikoBot(cfg);

@@ -25,7 +25,7 @@ namespace Saiko
                 AutomaticGuildSync = true,
                 AutoReconnect = true,
                 DiscordBranch = Branch.Stable,
-                EnableCompression = true,
+                //EnableCompression = true,
                 LogLevel = LogLevel.Debug,
                 Token = cfg.Token,
                 TokenType = TokenType.Bot,
@@ -62,6 +62,11 @@ namespace Saiko
             {
                 await e.Client.UpdateStatusAsync(new Game(_config.Status), UserStatus.Online);
             };
+
+            Client.ClientError += async e =>
+            {
+                Client.DebugLogger.LogMessage(LogLevel.Error, "Saiko-Bot", $"Type: {e.Exception.GetType().ToString()},\nException:\n{e.Exception.ToString()}", DateTime.Now);
+            };
         }
 
         public async Task ConnectAsync()
@@ -80,6 +85,8 @@ namespace Saiko
             }
             else
                 Client.DebugLogger.LogMessage(LogLevel.Info, "Saiko-Bot", "Windows 8 or up detected, using .NET WebSocket", DateTime.Now);
+
+            Client.DebugLogger.LogMessage(LogLevel.Info, "Saiko-Bot", $"Prefix: {_config.Prefix}, Color: {_config.Color.ToString()}", DateTime.Now);
 
             await Client.ConnectAsync();
         }
