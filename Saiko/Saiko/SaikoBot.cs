@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using DSharpPlus;
 using DSharpPlus.Interactivity;
 using DSharpPlus.CommandsNext;
+using System.Net;
 
 namespace Saiko
 {
@@ -76,7 +77,9 @@ namespace Saiko
             if (Type.GetType("Mono.Runtime") != null) // Checking if ran on mono
             {
                 Client.SetWebSocketClient<WebSocketSharpClient>();
-                Client.DebugLogger.LogMessage(LogLevel.Info, "Saiko-Bot", "Mono runtime detected, using WebSocketSharp", DateTime.Now);
+                // Overriding because adding certificates for mono is a pain
+                ServicePointManager.ServerCertificateValidationCallback = (s, cert, chain, ssl) => true;
+                Client.DebugLogger.LogMessage(LogLevel.Info, "Saiko-Bot", "Mono runtime detected, using WebSocketSharp and overriding Certificates", DateTime.Now);
             }
             else if (Environment.OSVersion.Version.Major <= 6 && Environment.OSVersion.Version.Minor < 2) // Win7 = 6.1, Win8 is 6.2. Min is Win8
             {

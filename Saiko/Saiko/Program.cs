@@ -30,9 +30,6 @@ namespace Saiko
             var cfg = JsonConvert.DeserializeObject<SaikoConfig>(File.ReadAllText("SaikoConfig.json"));
             #endregion
 
-            // Overriding because adding certificates for mono is a pain
-            ServicePointManager.ServerCertificateValidationCallback = (s, cert, chain, ssl) => true;
-
             // Let's make Saiko initialize
             SaikoBot = new SaikoBot(cfg);
 
