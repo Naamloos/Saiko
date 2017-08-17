@@ -166,6 +166,7 @@ namespace Saiko.Commands
         public DiscordUser User { get { return this.Context.User; } }
         public DiscordMember Member { get { return this.Context.Member; } }
         public DiscordClient Client { get { return this.Context.Client; } }
+        public SaikoBot Saiko { get { return Program.SaikoBot; } }
 
         public EvaluationEnvironment(CommandContext ctx)
         {
