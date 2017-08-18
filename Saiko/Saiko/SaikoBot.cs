@@ -52,6 +52,8 @@ namespace Saiko
             Cnext.RegisterCommands<Commands.Admin>();
             Cnext.RegisterCommands<Commands.Tools>();
             Cnext.RegisterCommands<Commands.Owner>();
+            Cnext.RegisterCommands<Commands.Weeb>();
+            Cnext.RegisterCommands<Commands.Hentai>();
 
             Client.SocketOpened += async () =>
             {
