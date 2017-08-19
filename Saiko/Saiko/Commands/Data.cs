@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using DSharpPlus;
 using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
+using DSharpPlus.Interactivity;
 
 namespace Saiko.Commands
 {
@@ -59,6 +60,36 @@ namespace Saiko.Commands
                 .WithColor(Program.SaikoBot.Color);
 
             await ctx.RespondAsync("", embed: b.Build());
+        }
+
+        [Command("urban"), Aliases("ur"), Description("Urban Dictionary lookup")]
+        public async Task UrbanAsync(CommandContext ctx, [RemainingText, Description("Word to look up")]string Word)
+        {
+            var dat = await Helpers.UrbanDict.GetDataAsync(Word);
+            if (dat.Key == true)
+            {
+                var ps = dat.Value.List.Select(x => new Page()
+                {
+                    Content = "",
+                    Embed = new DiscordEmbedBuilder().WithDescription(x.Definition.TryRemove(1000)).WithColor(Program.SaikoBot.Color).Build()
+                });
+
+                await ctx.Client.GetInteractivityModule().SendPaginatedMessage(ctx.Channel, ctx.User, ps, TimeSpan.FromSeconds(30), TimeoutBehaviour.Ignore);
+            }
+            else
+            {
+                await ctx.RespondAsync("💔 No results found!");
+            }
+        }
+    }
+
+    public static class ExtendedString
+    {
+        public static string TryRemove(this string input, int index)
+        {
+            if (input.Length > index)
+                return input.Remove(index);
+            return input;
         }
     }
 }

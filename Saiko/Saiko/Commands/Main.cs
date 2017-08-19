@@ -2,6 +2,8 @@
 using DSharpPlus;
 using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
+using DSharpPlus.Interactivity;
+using System;
 
 namespace Saiko.Commands
 {
@@ -25,6 +27,33 @@ namespace Saiko.Commands
         public async Task PingAsync(CommandContext ctx)
         {
             await ctx.RespondAsync($"Pong! {ctx.Client.Ping} ms. (ahh.. this never gets old ^3^)");
+        }
+
+        [Command("report"), Description("Report an issue, abuse or bug to Naamloos")]
+        public async Task ReportAsync(CommandContext ctx, string Issue)
+        {
+            var mm = await ctx.RespondAsync("Are you okay with your user info + ID, guild name, guild ID and guild owner info + ID getting sent for further inspection?" +
+                "\n\n*(Please either respond with 'yes' or wait 5 seconds for the prompt to time out)*8");
+            var i = ctx.Client.GetInteractivityModule();
+            var m = await i.WaitForMessageAsync(x => x.Author.Id == ctx.User.Id && x.Channel.Id == ctx.Channel.Id && x.Content == "yes", TimeSpan.FromSeconds(15));
+            await mm.DeleteAsync();
+            if (m != null)
+            {
+                var dm = await ctx.Client.CreateDmAsync(ctx.Client.CurrentApplication.Owner);
+
+                var b = new DiscordEmbedBuilder();
+                b.WithTitle("Issue")
+                    .WithDescription(Issue)
+                    .WithAuthor($"{ctx.User.Username}#{ctx.User.Discriminator}", icon_url: ctx.User.AvatarUrl ?? ctx.User.DefaultAvatarUrl)
+                    .AddField("Guild", $"{ctx.Guild.Name} ({ctx.Guild.Id}) owned by {ctx.Guild.Owner.Username}#{ctx.Guild.Owner.Discriminator}");
+
+                await dm.SendMessageAsync("A new issue has been reported!", embed: b.Build());
+                await ctx.RespondAsync("Your issue has been reported.");
+            }
+            else
+            {
+                await ctx.RespondAsync("Your issue has not been reported.");
+            }
         }
     }
 }
