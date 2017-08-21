@@ -60,6 +60,12 @@ namespace Saiko.Commands
             await ctx.RespondAsync(left);
         }
 
+        [Command("sudo"), Description("Execute a command as if you're another user")]
+        public async Task SudoAsync(CommandContext ctx, [Description("User to Sudo")]DiscordUser user, [RemainingText, Description("Command to execute")] string command)
+        {
+            await ctx.CommandsNext.SudoAsync(user, ctx.Channel, command);
+        }
+
         // stole- borrowed from emzi
         [Command("eval"), Description("Evaluates a snippet of C# code, in context."), RequireOwner]
         public async Task EvaluateAsync(CommandContext ctx, [RemainingText, Description("Code to evaluate.")] string code)
