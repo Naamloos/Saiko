@@ -16,7 +16,7 @@ namespace Saiko.Commands
             b.WithTitle("Saiko on Github")
                 .WithDescription("Saiko is an open-source Discord bot written using the DSharpPlus Library.\nRead more about her in her Wiki.")
                 .WithImageUrl(ctx.Client.CurrentUser.AvatarUrl)
-                .WithColor(Program.SaikoBot.Color)
+                .WithColor(ctx.Dependencies.GetDependency<SaikoBot>().Color)
                 .WithFooter("❤❤❤ Thank you for using Saiko! ❤❤❤")
                 .WithUrl("https://github.com/NaamloosDT/Saiko");
 

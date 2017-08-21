@@ -71,7 +71,7 @@ namespace Saiko.Commands
             b.WithTitle("The magic 8ball has decided!")
                 .WithDescription(answers[RND.Next(0, answers.Count() - 1)])
                 .WithThumbnailUrl("https://www.magic-emoji.com/emoji/images/402_emoji_iphone_billiards.png") // TODO: replace this with github-hosted image
-                .WithColor(Program.SaikoBot.Color);
+                .WithColor(ctx.Dependencies.GetDependency<SaikoBot>().Color);
 
             await ctx.RespondAsync("", embed: b.Build());
         }

@@ -33,6 +33,9 @@ namespace Saiko
                 UseInternalLogHandler = true
             });
 
+            var b = new DependencyCollectionBuilder();
+            b.AddInstance<SaikoBot>(this);
+
             Cnext = Client.UseCommandsNext(new CommandsNextConfiguration()
             {
                 CaseSensitive = false,
@@ -41,7 +44,8 @@ namespace Saiko
                 EnableMentionPrefix = true,
                 HelpEmbedColor = cfg.Color,
                 SelfBot = false,
-                StringPrefix = cfg.Prefix
+                StringPrefix = cfg.Prefix,
+                Dependencies = b.Build()
             });
 
             Interactivity = Client.UseInteractivity();

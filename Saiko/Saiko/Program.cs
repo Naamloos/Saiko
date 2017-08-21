@@ -9,10 +9,10 @@ namespace Saiko
     class Program
     {
         // public static, so IF I need anything from it, I can reach it from anywhere
-        public static SaikoBot SaikoBot;
-        static void Main(string[] args) => MainAsync(args).GetAwaiter().GetResult();
+        public SaikoBot SaikoBot;
+        static void Main(string[] args) => new Program().MainAsync(args).GetAwaiter().GetResult();
 
-        static async Task MainAsync(string[] args)
+        async Task MainAsync(string[] args)
         {
             #region Config check
             if (!File.Exists("SaikoConfig.json"))

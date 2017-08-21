@@ -26,16 +26,16 @@ namespace Saiko.Commands
         [Command("uptime"), Aliases("up", "u"), Description("Shows data about uptime")]
         public async Task UptimeAsync(CommandContext ctx)
         {
-            TimeSpan BotUp = DateTimeOffset.Now.Subtract(Program.SaikoBot.BotStart);
-            TimeSpan SocketUp = DateTimeOffset.Now.Subtract(Program.SaikoBot.SocketStart);
+            TimeSpan BotUp = DateTimeOffset.Now.Subtract(ctx.Dependencies.GetDependency<SaikoBot>().BotStart);
+            TimeSpan SocketUp = DateTimeOffset.Now.Subtract(ctx.Dependencies.GetDependency<SaikoBot>().SocketStart);
 
             var b = new DiscordEmbedBuilder();
             b.WithTitle("Saiko's Uptime")
                 .AddField("Bot Uptime", String.Format(@"{0} days, {1}", BotUp.ToString(@"dd"), BotUp.ToString(@"hh\:mm\:ss")), true)
                 .AddField("Socket Uptime", String.Format(@"{0} days, {1}", SocketUp.ToString(@"dd"), SocketUp.ToString(@"hh\:mm\:ss")), true)
-                .AddField("Bot Start", Program.SaikoBot.BotStart.ToString("dd MMM yyyy hh:mm"), true)
-                .AddField("Socket Start", Program.SaikoBot.SocketStart.ToString("d MMM yyyy hh:mm"), true)
-                .WithColor(Program.SaikoBot.Color)
+                .AddField("Bot Start", ctx.Dependencies.GetDependency<SaikoBot>().BotStart.ToString("dd MMM yyyy hh:mm"), true)
+                .AddField("Socket Start", ctx.Dependencies.GetDependency<SaikoBot>().SocketStart.ToString("d MMM yyyy hh:mm"), true)
+                .WithColor(ctx.Dependencies.GetDependency<SaikoBot>().Color)
                 .WithThumbnailUrl(ctx.Client.CurrentUser.AvatarUrl);
 
             await ctx.RespondAsync("", embed: b.Build());
@@ -57,7 +57,7 @@ namespace Saiko.Commands
                 .AddField("Icon Url", ctx.Guild.IconUrl, false)
                 .WithFooter("Creation Date:", ctx.Guild.IconUrl)
                 .WithTimestamp(ctx.Guild.CreationDate)
-                .WithColor(Program.SaikoBot.Color);
+                .WithColor(ctx.Dependencies.GetDependency<SaikoBot>().Color);
 
             await ctx.RespondAsync("", embed: b.Build());
         }
@@ -71,7 +71,7 @@ namespace Saiko.Commands
                 var ps = dat.Value.List.Select(x => new Page()
                 {
                     Content = "",
-                    Embed = new DiscordEmbedBuilder().WithDescription(x.Definition.TryRemove(1000)).WithColor(Program.SaikoBot.Color).Build()
+                    Embed = new DiscordEmbedBuilder().WithDescription(x.Definition.TryRemove(1000)).WithColor(ctx.Dependencies.GetDependency<SaikoBot>().Color).Build()
                 });
 
                 await ctx.Client.GetInteractivityModule().SendPaginatedMessage(ctx.Channel, ctx.User, ps, TimeSpan.FromSeconds(30), TimeoutBehaviour.Ignore);

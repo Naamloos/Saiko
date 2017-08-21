@@ -76,7 +76,7 @@ namespace Saiko.Commands
             var embed = new DiscordEmbedBuilder
             {
                 Title = "Evaluating...",
-                Color = Program.SaikoBot.Color
+                Color = ctx.Dependencies.GetDependency<SaikoBot>().Color
             };
             var msg = await ctx.RespondAsync("", embed: embed.Build()).ConfigureAwait(false);
 
@@ -97,7 +97,7 @@ namespace Saiko.Commands
                 {
                     Title = "Compilation failed",
                     Description = string.Concat("Compilation failed after ", sw1.ElapsedMilliseconds.ToString("#,##0"), "ms with ", csc.Length.ToString("#,##0"), " errors."),
-                    Color = Program.SaikoBot.Color
+                    Color = ctx.Dependencies.GetDependency<SaikoBot>().Color
                 };
                 foreach (var xd in csc.Take(3))
                 {
@@ -132,7 +132,7 @@ namespace Saiko.Commands
                 {
                     Title = "Execution failed",
                     Description = string.Concat("Execution failed after ", sw2.ElapsedMilliseconds.ToString("#,##0"), "ms with `", rex.GetType(), ": ", rex.Message, "`."),
-                    Color = Program.SaikoBot.Color,
+                    Color = ctx.Dependencies.GetDependency<SaikoBot>().Color,
                 };
                 await msg.EditAsync(embed: embed.Build()).ConfigureAwait(false);
                 return;
@@ -142,7 +142,7 @@ namespace Saiko.Commands
             embed = new DiscordEmbedBuilder
             {
                 Title = "Evaluation successful",
-                Color = Program.SaikoBot.Color,
+                Color = ctx.Dependencies.GetDependency<SaikoBot>().Color,
             };
 
             embed.AddField("Result", css.ReturnValue != null ? css.ReturnValue.ToString() : "No value returned", false)
@@ -166,7 +166,7 @@ namespace Saiko.Commands
         public DiscordUser User { get { return this.Context.User; } }
         public DiscordMember Member { get { return this.Context.Member; } }
         public DiscordClient Client { get { return this.Context.Client; } }
-        public SaikoBot Saiko { get { return Program.SaikoBot; } }
+        public SaikoBot Saiko { get { return Context.Dependencies.GetDependency<SaikoBot>(); } }
 
         public EvaluationEnvironment(CommandContext ctx)
         {
