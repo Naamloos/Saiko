@@ -30,7 +30,7 @@ namespace Saiko.Commands
         }
 
         [Command("report"), Description("Report an issue, abuse or bug to Naamloos")]
-        public async Task ReportAsync(CommandContext ctx, string Issue)
+        public async Task ReportAsync(CommandContext ctx, [RemainingText, Description("Issue you want to report")]string Issue)
         {
             var mm = await ctx.RespondAsync("Are you okay with your user info + ID, guild name, guild ID and guild owner info + ID getting sent for further inspection?" +
                 "\n\n*(Please either respond with 'yes' or wait 5 seconds for the prompt to time out)*8");

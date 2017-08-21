@@ -11,7 +11,7 @@ namespace Saiko.Commands
     public class Tools
     {
         [Command("regex"), Aliases("r"), Description("Regex tester on input strings")]
-        public async Task RegexTest(CommandContext ctx, [Description("Regex to use")]string pattern, [Description("Input string")]string input)
+        public async Task RegexTest(CommandContext ctx, [Description("Regex to use")]string pattern, [RemainingText, Description("Input string")]string input)
         {
             var ms = Regex.Matches(input, pattern);
             string matches = $"Found matches for regex: `{pattern}`";
