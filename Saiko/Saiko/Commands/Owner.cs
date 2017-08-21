@@ -61,7 +61,7 @@ namespace Saiko.Commands
         }
 
         [Command("sudo"), Description("Execute a command as if you're another user")]
-        public async Task SudoAsync(CommandContext ctx, [Description("User to Sudo")]DiscordUser user, [RemainingText, Description("Command to execute")] string command)
+        public async Task SudoAsync(CommandContext ctx, [Description("User to Sudo")]DiscordUser user, [RemainingText, Description("Command to execute")] string command = "help")
         {
             await ctx.CommandsNext.SudoAsync(user, ctx.Channel, command);
         }

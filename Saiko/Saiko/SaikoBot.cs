@@ -21,6 +21,7 @@ namespace Saiko
         public SaikoBot(SaikoConfig cfg)
         {
             _config = cfg;
+            SaikoHelpFormatter.HelpColor = cfg.Color;
             Client = new DiscordClient(new DiscordConfig()
             {
                 AutomaticGuildSync = true,
@@ -42,11 +43,12 @@ namespace Saiko
                 EnableDefaultHelp = true,
                 EnableDms = false,
                 EnableMentionPrefix = true,
-                HelpEmbedColor = cfg.Color,
                 SelfBot = false,
                 StringPrefix = cfg.Prefix,
-                Dependencies = b.Build()
+                Dependencies = b.Build(),
             });
+
+            Cnext.SetHelpFormatter<SaikoHelpFormatter>();
 
             Interactivity = Client.UseInteractivity();
 
