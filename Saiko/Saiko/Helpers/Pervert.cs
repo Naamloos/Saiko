@@ -121,7 +121,7 @@ namespace Saiko.Helpers
                 if (matches.Count == 0)
                     return "Nothing found!";
                 var match = matches[rng.Next(0, matches.Count)];
-                return "http:" + matches[rng.Next(0, matches.Count)].Groups[1].Value;
+                return matches[rng.Next(0, matches.Count)].Groups[1].Value;
             }
         }
 
