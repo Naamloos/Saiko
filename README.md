@@ -14,9 +14,13 @@ To host your own instance, clone or download this repo and build the project. Af
 ## Libraries
 
 [DSharpPlus](https://github.com/NaamloosDT/DSharpPlus)
+
 [Roslyn](https://github.com/dotnet/roslyn)
+
 [Json.NET](https://github.com/JamesNK/Newtonsoft.Json)
+
 [WebSocketSharp](https://github.com/sta/websocket-sharp)
+
 [WebSocket4NET](https://github.com/kerryjiang/WebSocket4Net)
 
 #### Thank you for using Saiko!
