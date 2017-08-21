@@ -76,6 +76,7 @@ namespace Saiko
 
             Client.ClientError += async e =>
             {
+                await Task.Yield();
                 Client.DebugLogger.LogMessage(LogLevel.Error, "Saiko-Bot", $"Type: {e.Exception.GetType().ToString()},\nException:\n{e.Exception.ToString()}", DateTime.Now);
             };
         }

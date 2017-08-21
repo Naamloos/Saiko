@@ -40,6 +40,8 @@ namespace Saiko
             if(_subcs != null)
                 b.AddField("Subcommands", _subcs);
             b.WithColor(HelpColor);
+            if(_gexec)
+                b.Description += "*Is executable without subcommands*";
             return new CommandHelpMessage("", b.Build());
         }
 
