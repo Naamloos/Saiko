@@ -1,5 +1,6 @@
 # Saiko
 Saiko is the first bot to use DSharpPlus, now open source!
+
 ![Saiko](https://i.imgur.com/emnqJvl.png)
 
 ## Joining
