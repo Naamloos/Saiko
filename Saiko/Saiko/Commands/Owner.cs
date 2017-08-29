@@ -15,7 +15,7 @@ using System.Collections.Generic;
 
 namespace Saiko.Commands
 {
-    [Group("owner"), Aliases("o"), Description("Commands only allowe dot be used by bot's owner."), RequireOwner]
+    [Group("owner"), Aliases("o"), Description("Commands only allowed to be used by bot's owner."), RequireOwner]
     public class Owner
     {
         [Command("pagtest")]
