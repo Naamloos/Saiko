@@ -4,18 +4,49 @@ using System.Threading.Tasks;
 using DSharpPlus;
 using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
+using DSharpPlus.Interactivity;
 using System.Net;
 using System.IO;
 using Microsoft.CodeAnalysis.Scripting;
 using System.Diagnostics;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Scripting;
+using System.Collections.Generic;
 
 namespace Saiko.Commands
 {
     [Group("owner"), Aliases("o"), Description("Commands only allowe dot be used by bot's owner."), RequireOwner]
     public class Owner
     {
+        [Command("pagtest")]
+        public async Task PagTestAsync(CommandContext ctx)
+        {
+            List<Page> pgs = new List<Page>
+            {
+                new Page()
+                {
+                    Content = "meme1"
+                },
+                new Page()
+                {
+                    Content = "meme2"
+                },
+                new Page()
+                {
+                    Content = "meme3"
+                },
+                new Page()
+                {
+                    Content = "meme4"
+                },
+                new Page()
+                {
+                    Content = "meme5"
+                }
+            };
+            await ctx.Client.GetInteractivityModule().SendPaginatedMessage(ctx.Channel, ctx.User, pgs, TimeSpan.FromSeconds(30), TimeoutBehaviour.Ignore);
+        }
+
         [Command("setavatar"), Aliases("sa"), Description("Sets bot avatar")]
         public async Task SetAvatar(CommandContext ctx, [Description("New avatar (can be empty)"), RemainingText]string ImageUrl)
         {
