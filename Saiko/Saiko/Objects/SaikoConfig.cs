@@ -1,5 +1,6 @@
 ﻿using Newtonsoft.Json;
 using DSharpPlus;
+using DSharpPlus.Entities;
 
 namespace Saiko
 {
@@ -18,5 +19,8 @@ namespace Saiko
 
         [JsonProperty("status")]
         public string Status = "❤ Hello! ;) ❤";
+
+        [JsonProperty("osukey")]
+        public string OsuToken = "Your Osu! API key here";
     }
 }

@@ -5,6 +5,7 @@ using DSharpPlus;
 using DSharpPlus.CommandsNext;
 using DSharpPlus.Interactivity;
 using DSharpPlus.CommandsNext.Attributes;
+using DSharpPlus.Entities;
 
 namespace Saiko.Commands
 {
@@ -31,7 +32,7 @@ namespace Saiko.Commands
             var m = await ctx.Client.GetInteractivityModule().WaitForMessageAsync(x => x.Channel.Id == ctx.Channel.Id && x.Content == Guess.ToString(), Timeout);
 
             if (m != null)
-                await ctx.RespondAsync($"Congratulations! {m.Author.Mention} won the game!! The number was {Guess}!");
+                await ctx.RespondAsync($"Congratulations! {m.Message.Author.Mention} won the game!! The number was {Guess}!");
             else
                 await ctx.RespondAsync($"Aww... Nobody guessed that the number I chose was {Guess}...");
         }

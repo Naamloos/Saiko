@@ -36,20 +36,23 @@
     <ApplicationManifest>app.manifest</ApplicationManifest>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="DSharpPlus, Version=3.0.0.216, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\DSharpPlus.3.0.0-beta-00216\lib\net46\DSharpPlus.dll</HintPath>
+    <Reference Include="CSharpOsu, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\CSharpOsu.1.4.5\lib\CSharpOsu.dll</HintPath>
     </Reference>
-    <Reference Include="DSharpPlus.CommandsNext, Version=3.0.0.216, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\DSharpPlus.CommandsNext.3.0.0-beta-00216\lib\net46\DSharpPlus.CommandsNext.dll</HintPath>
+    <Reference Include="DSharpPlus, Version=3.0.1.244, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\DSharpPlus.3.0.1-beta-00244\lib\net46\DSharpPlus.dll</HintPath>
     </Reference>
-    <Reference Include="DSharpPlus.Interactivity, Version=3.0.0.216, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\DSharpPlus.Interactivity.3.0.0-beta-00216\lib\net46\DSharpPlus.Interactivity.dll</HintPath>
+    <Reference Include="DSharpPlus.CommandsNext, Version=3.0.1.244, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\DSharpPlus.CommandsNext.3.0.1-beta-00244\lib\net46\DSharpPlus.CommandsNext.dll</HintPath>
     </Reference>
-    <Reference Include="DSharpPlus.WebSocket.WebSocket4Net, Version=3.0.0.216, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\DSharpPlus.WebSocket.WebSocket4Net.3.0.0-beta-00216\lib\net46\DSharpPlus.WebSocket.WebSocket4Net.dll</HintPath>
+    <Reference Include="DSharpPlus.Interactivity, Version=3.0.1.244, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\DSharpPlus.Interactivity.3.0.1-beta-00244\lib\net46\DSharpPlus.Interactivity.dll</HintPath>
     </Reference>
-    <Reference Include="DSharpPlus.WebSocket.WebSocketSharp, Version=3.0.0.216, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\DSharpPlus.WebSocket.WebSocketSharp.3.0.0-beta-00216\lib\net46\DSharpPlus.WebSocket.WebSocketSharp.dll</HintPath>
+    <Reference Include="DSharpPlus.WebSocket.WebSocket4Net, Version=3.0.1.244, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\DSharpPlus.WebSocket.WebSocket4Net.3.0.1-beta-00244\lib\net46\DSharpPlus.WebSocket.WebSocket4Net.dll</HintPath>
+    </Reference>
+    <Reference Include="DSharpPlus.WebSocket.WebSocketSharp, Version=3.0.1.244, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\DSharpPlus.WebSocket.WebSocketSharp.3.0.1-beta-00244\lib\net46\DSharpPlus.WebSocket.WebSocketSharp.dll</HintPath>
     </Reference>
     <Reference Include="Esent.Interop, Version=1.9.4.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>..\packages\ManagedEsent.1.9.4\lib\net40\Esent.Interop.dll</HintPath>
@@ -221,6 +224,7 @@
     <Compile Include="Commands\Fun.cs" />
     <Compile Include="Commands\Hentai.cs" />
     <Compile Include="Commands\Main.cs" />
+    <Compile Include="Commands\Osu.cs" />
     <Compile Include="Commands\Owner.cs" />
     <Compile Include="Commands\Random.cs" />
     <Compile Include="Commands\Text.cs" />

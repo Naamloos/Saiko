@@ -12,6 +12,7 @@ using System.Diagnostics;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Scripting;
 using System.Collections.Generic;
+using DSharpPlus.Entities;
 
 namespace Saiko.Commands
 {
@@ -61,7 +62,7 @@ namespace Saiko.Commands
                         var bs = wc.DownloadData(ImageUrl);
                         ms.Write(bs, 0, bs.Length);
                         ms.Position = 0;
-                        await ctx.Client.EditCurrentUserAsync(avatar: ms, avatar_format: ImageFormat.Png);
+                        await ctx.Client.EditCurrentUserAsync(avatar: ms);
                         await ctx.RespondAsync("Avatar set!");
                     }
                 }
@@ -145,7 +146,7 @@ namespace Saiko.Commands
                 {
                     embed.AddField("Some errors ommited", string.Concat((csc.Length - 3).ToString("#,##0"), " more errors not displayed"), false);
                 }
-                await msg.EditAsync(embed: embed.Build()).ConfigureAwait(false);
+                await msg.ModifyAsync(embed: embed.Build()).ConfigureAwait(false);
                 return;
             }
 
@@ -171,7 +172,7 @@ namespace Saiko.Commands
                     Description = string.Concat("Execution failed after ", sw2.ElapsedMilliseconds.ToString("#,##0"), "ms with `", rex.GetType(), ": ", rex.Message, "`."),
                     Color = ctx.Dependencies.GetDependency<SaikoBot>().Color,
                 };
-                await msg.EditAsync(embed: embed.Build()).ConfigureAwait(false);
+                await msg.ModifyAsync(embed: embed.Build()).ConfigureAwait(false);
                 return;
             }
 
@@ -189,7 +190,7 @@ namespace Saiko.Commands
             if (css.ReturnValue != null)
                 embed.AddField("Return type", css.ReturnValue.GetType().ToString(), true);
 
-            await msg.EditAsync(embed: embed.Build()).ConfigureAwait(false);
+            await msg.ModifyAsync(embed: embed.Build()).ConfigureAwait(false);
         }
     }
 

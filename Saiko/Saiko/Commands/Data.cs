@@ -5,6 +5,7 @@ using DSharpPlus;
 using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.Interactivity;
+using DSharpPlus.Entities;
 
 namespace Saiko.Commands
 {
@@ -56,7 +57,7 @@ namespace Saiko.Commands
                 .AddField("Verification Level", ctx.Guild.VerificationLevel.ToString(), false)
                 .AddField("Icon Url", ctx.Guild.IconUrl, false)
                 .WithFooter("Creation Date:", ctx.Guild.IconUrl)
-                .WithTimestamp(ctx.Guild.CreationDate)
+                .WithTimestamp(ctx.Guild.CreationTimestamp)
                 .WithColor(ctx.Dependencies.GetDependency<SaikoBot>().Color);
 
             await ctx.RespondAsync("", embed: b.Build());

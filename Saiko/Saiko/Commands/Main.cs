@@ -4,6 +4,7 @@ using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.Interactivity;
 using System;
+using DSharpPlus.Entities;
 
 namespace Saiko.Commands
 {
@@ -14,11 +15,12 @@ namespace Saiko.Commands
         {
             var b = new DiscordEmbedBuilder();
             b.WithTitle("Saiko on Github")
-                .WithDescription("Saiko is an open-source Discord bot written using the DSharpPlus Library.\nRead more about her in her Wiki.")
+                .WithDescription("Saiko is an open-source Discord bot written using the [DSharpPlus](https://github.com/NaamloosDT/DSharpPlus) Library.\nRead more about her in her [Wiki](https://github.com/NaamloosDT/Saiko/wiki).")
                 .WithImageUrl(ctx.Client.CurrentUser.AvatarUrl)
                 .WithColor(ctx.Dependencies.GetDependency<SaikoBot>().Color)
                 .WithFooter("❤❤❤ Thank you for using Saiko! ❤❤❤")
-                .WithUrl("https://github.com/NaamloosDT/Saiko");
+                .WithUrl("https://github.com/NaamloosDT/Saiko")
+                .AddField("DSharpPlus version", ctx.Client.VersionString);
 
             await ctx.RespondAsync("", embed: b.Build());
         }

@@ -4,6 +4,9 @@ using DSharpPlus;
 using DSharpPlus.Interactivity;
 using DSharpPlus.CommandsNext;
 using System.Net;
+using DSharpPlus.Net.WebSocket;
+using DSharpPlus.Entities;
+using CSharpOsu;
 
 namespace Saiko
 {
@@ -11,6 +14,7 @@ namespace Saiko
     {
         // Just in case we want to do something with these..
         public DiscordClient Client;
+        public OsuClient Osu;
         public InteractivityModule Interactivity;
         public CommandsNextModule Cnext;
         SaikoConfig _config;
@@ -22,17 +26,17 @@ namespace Saiko
         {
             _config = cfg;
             SaikoHelpFormatter.HelpColor = cfg.Color;
-            Client = new DiscordClient(new DiscordConfig()
+            Client = new DiscordClient(new DiscordConfiguration()
             {
                 AutomaticGuildSync = true,
                 AutoReconnect = true,
-                DiscordBranch = Branch.Stable,
                 //EnableCompression = true,
                 LogLevel = LogLevel.Debug,
                 Token = cfg.Token,
                 TokenType = TokenType.Bot,
                 UseInternalLogHandler = true
             });
+            Osu = new OsuClient(cfg.OsuToken);
 
             var b = new DependencyCollectionBuilder();
             b.AddInstance<SaikoBot>(this);
@@ -62,6 +66,7 @@ namespace Saiko
             Cnext.RegisterCommands<Commands.Hentai>();
             Cnext.RegisterCommands<Commands.Text>();
             Cnext.RegisterCommands<Commands.RandomCommands>();
+            Cnext.RegisterCommands<Commands.Osu>();
 
             Client.SocketOpened += async () =>
             {
@@ -71,13 +76,19 @@ namespace Saiko
 
             Client.Ready += async e =>
             {
-                await e.Client.UpdateStatusAsync(new Game(_config.Status), UserStatus.Online);
+                await ((DiscordClient)e.Client).UpdateStatusAsync(new Game(_config.Status), UserStatus.Online);
             };
 
-            Client.ClientError += async e =>
+            Client.ClientErrored += async e =>
             {
                 await Task.Yield();
-                Client.DebugLogger.LogMessage(LogLevel.Error, "Saiko-Bot", $"Type: {e.Exception.GetType().ToString()},\nException:\n{e.Exception.ToString()}", DateTime.Now);
+                Client.DebugLogger.LogMessage(LogLevel.Error, "Saiko-Client", $"Type: {e.Exception.GetType().ToString()},\nException:\n{e.Exception.ToString()}", DateTime.Now);
+            };
+
+            Cnext.CommandErrored += async e =>
+            {
+                await Task.Yield();
+                Client.DebugLogger.LogMessage(LogLevel.Error, "Saiko-Cnext", $"Type: {e.Exception.GetType().ToString()},\nException:\n{e.Exception.ToString()}", DateTime.Now);
             };
         }
 

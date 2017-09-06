@@ -31,7 +31,7 @@ namespace Saiko.Commands
             var m = await inter.WaitForMessageAsync(x => x.Channel.Id == ctx.Channel.Id && x.Author.Id == ctx.User.Id && (x.Content.ToLower() == "yes" || x.Content.ToLower() == "no"), TimeSpan.FromSeconds(10));
             if (m != null)
             {
-                if (m.Content == "yes")
+                if (m.Message.Content == "yes")
                 {
                     await ctx.RespondAsync("Oh... I understand.. Goodbye :c");
                     await ctx.Guild.LeaveAsync();

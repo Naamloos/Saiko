@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Entities;
 using DSharpPlus;
+using DSharpPlus.Entities;
 
 namespace Saiko
 {
