@@ -7,6 +7,7 @@ using System.Net;
 using DSharpPlus.Net.WebSocket;
 using DSharpPlus.Entities;
 using CSharpOsu;
+using Saiko.Helpers;
 
 namespace Saiko
 {
@@ -21,6 +22,7 @@ namespace Saiko
         public DiscordColor Color => _config.Color; // Can't make config public! >:c
         public DateTimeOffset BotStart;
         public DateTimeOffset SocketStart;
+        public DatabaseManager Database;
 
         public SaikoBot(SaikoConfig cfg)
         {
@@ -37,6 +39,10 @@ namespace Saiko
                 UseInternalLogHandler = true
             });
             Osu = new OsuClient(cfg.OsuToken);
+            if (cfg.UsingPQSQL)
+            {
+                Database = new DatabaseManager(cfg.DatabaseHost, cfg.DatabasePort, cfg.DatabaseName, cfg.DatabaseUser, cfg.DatabasePassword);
+            }
 
             var b = new DependencyCollectionBuilder();
             b.AddInstance<SaikoBot>(this);
@@ -67,6 +73,7 @@ namespace Saiko
             Cnext.RegisterCommands<Commands.Text>();
             Cnext.RegisterCommands<Commands.RandomCommands>();
             Cnext.RegisterCommands<Commands.Osu>();
+            Cnext.RegisterCommands<Commands.Tag>();
 
             Client.SocketOpened += async () =>
             {

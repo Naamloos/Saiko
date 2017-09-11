@@ -7,7 +7,7 @@ using System.Text.RegularExpressions;
 
 namespace Saiko.Commands
 {
-    [Group("tools"), Aliases("t"), Description("Just some useful tools you can make use of")]
+    [Group("tools"), Aliases("ts"), Description("Just some useful tools you can make use of")]
     public class Tools
     {
         [Command("regex"), Aliases("r"), Description("Regex tester on input strings")]
