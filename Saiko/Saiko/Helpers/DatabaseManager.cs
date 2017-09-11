@@ -31,25 +31,25 @@ namespace Saiko.Helpers
                 Host = host,
                 Port = port,
                 Database = database,
-                Username = User,
+                Username = username,
                 Password = password,
                 Pooling = true,
 
                 SslMode = SslMode.Require,
                 TrustServerCertificate = true
             };
-
             ConnectionString = csb.ConnectionString;
             Connection = new NpgsqlConnection(ConnectionString);
+            Connection.Open();
             Initialize();
         }
 
         void Initialize()
         {
-            Connection.Open();
-            using (var cmd = new NpgsqlCommand())
+            using (var con = new NpgsqlConnection(this.ConnectionString))
+            using (var cmd = con.CreateCommand())
             {
-                cmd.Connection = Connection;
+                con.Open();
                 cmd.CommandText = "CREATE SEQUENCE IF NOT EXISTS tags_id_seq;" +
                     "\nCREATE TABLE IF NOT EXISTS TAGS(" +
                     "\nID BIGINT PRIMARY KEY DEFAULT NEXTVAL('tags_id_seq')," +
@@ -66,10 +66,10 @@ namespace Saiko.Helpers
 
         public async Task DeleteTag(string name, ulong ownerid)
         {
-            await Connection.OpenAsync();
-            using (var cmd = new NpgsqlCommand())
+            using (var con = new NpgsqlConnection(this.ConnectionString))
+            using (var cmd = con.CreateCommand())
             {
-                cmd.Connection = Connection;
+                await con.OpenAsync();
                 cmd.CommandText = "DELETE FROM TAGS WHERE OWNERID=@owner AND NAME=@name";
                 cmd.Parameters.AddWithValue("name", NpgsqlDbType.Text, name);
                 cmd.Parameters.AddWithValue("owner", NpgsqlDbType.Bigint, (long)ownerid);
@@ -81,11 +81,12 @@ namespace Saiko.Helpers
 
         public async Task<List<SaikoTag>> GetTags()
         {
-            await Connection.OpenAsync();
             List<SaikoTag> results = new List<SaikoTag>();
-            using (var cmd = new NpgsqlCommand())
+
+            using (var con = new NpgsqlConnection(this.ConnectionString))
+            using (var cmd = con.CreateCommand())
             {
-                cmd.Connection = Connection;
+                await con.OpenAsync();
                 cmd.CommandText = $"SELECT * FROM TAGS ORDER BY ID ASC;";
                 cmd.Prepare();
                 using (var reader = await cmd.ExecuteReaderAsync())
@@ -110,10 +111,10 @@ namespace Saiko.Helpers
 
         public async Task SetTag(SaikoTag t)
         {
-            await Connection.OpenAsync();
-            using (var cmd = new NpgsqlCommand())
+            using (var con = new NpgsqlConnection(this.ConnectionString))
+            using (var cmd = con.CreateCommand())
             {
-                cmd.Connection = Connection;
+                await con.OpenAsync();
                 cmd.CommandText = "INSERT INTO TAGS(NAME, CONTENTS, ATTACHMENT, OWNERID) VALUES(@name, @contents, @attachment, @owner) ON CONFLICT(NAME) DO UPDATE SET CONTENTS=EXCLUDED.CONTENTS, ATTACHMENT=EXCLUDED.ATTACHMENT WHERE TAGS.OWNERID=EXCLUDED.OWNERID AND TAGS.NAME=EXCLUDED.NAME;";
                 cmd.Parameters.AddWithValue("name", NpgsqlDbType.Text, t.Name);
                 cmd.Parameters.AddWithValue("contents", NpgsqlDbType.Text, t.Contents);
@@ -127,11 +128,11 @@ namespace Saiko.Helpers
 
         public async Task<SaikoTag> GetTag(string name)
         {
-            await Connection.OpenAsync();
             var t = new SaikoTag();
-            using (var cmd = new NpgsqlCommand())
+            using (var con = new NpgsqlConnection(this.ConnectionString))
+            using (var cmd = con.CreateCommand())
             {
-                cmd.Connection = Connection;
+                await con.OpenAsync();
                 cmd.CommandText = $"SELECT * FROM TAGS WHERE NAME = @name;";
                 cmd.Parameters.AddWithValue("name", NpgsqlDbType.Text, name);
                 cmd.Prepare();

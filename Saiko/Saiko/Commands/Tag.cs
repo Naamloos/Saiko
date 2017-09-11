@@ -12,10 +12,10 @@ using System.Collections.Generic;
 
 namespace Saiko.Commands
 {
-    [Group("tag"), Aliases("t")]
+    [Group("tag", CanInvokeWithoutSubcommand = true), Aliases("t")]
     public class Tag
     {
-        public async Task ExecuteGroup(CommandContext ctx, string Name)
+        public async Task ExecuteGroupAsync(CommandContext ctx, string Name)
         {
             SaikoTag t = await ctx.Dependencies.GetDependency<SaikoBot>().Database.GetTag(Name);
             var User = (DiscordMember)CommandsNextUtilities.ConvertArgument<DiscordMember>(t.Owner.ToString(), ctx);
