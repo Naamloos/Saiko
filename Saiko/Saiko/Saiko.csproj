@@ -251,6 +251,7 @@
     <Compile Include="Commands\Tag.cs" />
     <Compile Include="Commands\Text.cs" />
     <Compile Include="Commands\Tools.cs" />
+    <Compile Include="Commands\Voice.cs" />
     <Compile Include="Commands\Weeb.cs" />
     <Compile Include="Extensions.cs" />
     <Compile Include="Helpers\DatabaseManager.cs" />

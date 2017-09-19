@@ -3,11 +3,13 @@ using System.Threading.Tasks;
 using DSharpPlus;
 using DSharpPlus.Interactivity;
 using DSharpPlus.CommandsNext;
+using DSharpPlus.VoiceNext;
 using System.Net;
 using DSharpPlus.Net.WebSocket;
 using DSharpPlus.Entities;
 using CSharpOsu;
 using Saiko.Helpers;
+using DSharpPlus.VoiceNext.Codec;
 
 namespace Saiko
 {
@@ -18,6 +20,7 @@ namespace Saiko
         public OsuClient Osu;
         public InteractivityModule Interactivity;
         public CommandsNextModule Cnext;
+        public VoiceNextClient VNClient;
         SaikoConfig _config;
         public DiscordColor Color => _config.Color; // Can't make config public! >:c
         public DateTimeOffset BotStart;
@@ -32,7 +35,7 @@ namespace Saiko
             {
                 AutomaticGuildSync = true,
                 AutoReconnect = true,
-                //EnableCompression = true,
+                EnableCompression = true,
                 LogLevel = LogLevel.Debug,
                 Token = cfg.Token,
                 TokenType = TokenType.Bot,
@@ -45,7 +48,7 @@ namespace Saiko
             }
 
             var b = new DependencyCollectionBuilder();
-            b.AddInstance<SaikoBot>(this);
+            b.AddInstance(this);
 
             Cnext = Client.UseCommandsNext(new CommandsNextConfiguration()
             {
@@ -74,11 +77,15 @@ namespace Saiko
             Cnext.RegisterCommands<Commands.RandomCommands>();
             Cnext.RegisterCommands<Commands.Osu>();
             Cnext.RegisterCommands<Commands.Tag>();
+            Cnext.RegisterCommands<Commands.Voice>();
+
+            VNClient = Client.UseVoiceNext();
 
             Client.SocketOpened += async () =>
             {
                 await Task.Yield();
                 SocketStart = DateTimeOffset.Now;
+                Client.DebugLogger.LogMessage(LogLevel.Debug, "Saiko-Debug", "Socket opened!", DateTime.Now);
             };
 
             Client.Ready += async e =>
@@ -90,6 +97,12 @@ namespace Saiko
             {
                 await Task.Yield();
                 Client.DebugLogger.LogMessage(LogLevel.Error, "Saiko-Client", $"Type: {e.Exception.GetType().ToString()},\nException:\n{e.Exception.ToString()}", DateTime.Now);
+            };
+
+            Client.SocketErrored += async e =>
+            {
+                await Task.Yield();
+                Client.DebugLogger.LogMessage(LogLevel.Error, "Saiko-Socket", $"Type: {e.Exception.GetType().ToString()},\nException:\n{e.Exception.ToString()}", DateTime.Now);
             };
 
             Cnext.CommandErrored += async e =>
@@ -116,7 +129,10 @@ namespace Saiko
                 Client.DebugLogger.LogMessage(LogLevel.Info, "Saiko-Bot", "Windows 7 or below detected, using WebSocket4Net", DateTime.Now);
             }
             else
+            {
                 Client.DebugLogger.LogMessage(LogLevel.Info, "Saiko-Bot", "Windows 8 or up detected, using .NET WebSocket", DateTime.Now);
+            }
+
 
             Client.DebugLogger.LogMessage(LogLevel.Info, "Saiko-Bot", $"Prefix: {_config.Prefix}, Color: {_config.Color.ToString()}", DateTime.Now);
 
