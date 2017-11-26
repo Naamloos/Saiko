@@ -311,7 +311,6 @@ namespace SaiCore.Commands
 
         [Command("guess")]
         [Description("A fun little game where everyone has to guess the number!")]
-        [RequirePermissions(Permissions.BanMembers)]
         public async Task GuessAsync(CommandContext ctx, int Minimum, int Maximum, TimeSpan Timeout)
         {
             await ctx.RespondAsync($"🎲 Hey! Guess the number between {Minimum} and {Maximum} in " +
@@ -668,7 +667,8 @@ namespace SaiCore.Commands
                 word[i] = TextConsts.Normal[new Random().Next(0, TextConsts.Normal.Length - 1)];
             }
             var str = string.Join("", word).Replace("\\", "");
-            await ctx.RespondAsync($"The first to type `{str}` wins!");
+            var f = Helpers.RandomBitmap.GenerateWithText(str);
+            await ctx.RespondWithFileAsync("img.png", f, "The first to type this wins!");
             var m = await bot._interactivity.WaitForMessageAsync(x => x.ChannelId == ctx.Channel.Id && x.Content == str);
             if (m != null)
                 await ctx.RespondAsync($"Congratulations {m.User.Mention}! You won!");
