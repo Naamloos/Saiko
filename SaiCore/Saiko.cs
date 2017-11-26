@@ -13,6 +13,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using DSharpPlus.Entities;
 
 namespace SaiCore
 {
@@ -86,6 +87,11 @@ namespace SaiCore
             {
                 await Task.Yield();
                 this.SocketStart = DateTimeOffset.Now;
+            };
+
+            _client.Ready += async e =>
+            {
+                await _client.UpdateStatusAsync(new DiscordActivity("anime :3", ActivityType.Watching), UserStatus.Online);
             };
 
             _osu = new OsuClient(_config.OsuToken);
