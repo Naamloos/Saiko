@@ -78,6 +78,7 @@ namespace SaiCore
             });
 
             this._cnext.RegisterCommands<Commands.Main>();
+            this._cnext.RegisterCommands<Commands.Hentai>();
 
             this._cts = new CancellationTokenSource();
 
@@ -101,6 +102,7 @@ namespace SaiCore
         {
             await this._client.ConnectAsync();
             await WaitForCancellation();
+            await this._client.DisconnectAsync();
         }
 
         private async Task WaitForCancellation()

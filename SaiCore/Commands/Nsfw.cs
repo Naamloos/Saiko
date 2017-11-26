@@ -4,7 +4,7 @@ using DSharpPlus.CommandsNext.Attributes;
 
 namespace SaiCore.Commands
 {
-    [Group("hentai"), Aliases("h"), Description("You want the tiddy? Hop into an NSFW channel first please."), Hidden]
+    [Group("hentai"), Aliases("h", "nsfw"), Description("You want the tiddy? Hop into an NSFW channel first please."), Hidden]
     public class Hentai
     {
         [Command("konachan"), Description("Gets a random image from Konachan.com.\nNSFW.")]
