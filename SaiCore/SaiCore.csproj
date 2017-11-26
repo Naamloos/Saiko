@@ -1,0 +1,19 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>netcoreapp2.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="CSharpOSU" Version="1.4.5" />
+    <PackageReference Include="DSharpPlus" Version="4.0.0-beta-00379" />
+    <PackageReference Include="DSharpPlus.CommandsNext" Version="4.0.0-beta-00379" />
+    <PackageReference Include="DSharpPlus.Interactivity" Version="4.0.0-beta-00379" />
+    <PackageReference Include="DSharpPlus.VoiceNext" Version="4.0.0-beta-00379" />
+    <PackageReference Include="Microsoft.CodeAnalysis.Scripting" Version="2.6.0-beta3" />
+    <PackageReference Include="Microsoft.Net.Compilers" Version="2.6.0-beta3" />
+    <PackageReference Include="System.Drawing.Common" Version="4.5.0-preview1-25914-04" />
+  </ItemGroup>
+
+</Project>

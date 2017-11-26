@@ -9,7 +9,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
-namespace Saiko
+namespace SaiCore
 {
     public static class Extensions
     {
@@ -101,6 +101,13 @@ namespace Saiko
                     return false;
             }
             return true;
+        }
+
+        public static string TryRemove(this string input, int index)
+        {
+            if (input.Length > index)
+                return input.Remove(index);
+            return input;
         }
     }
 }

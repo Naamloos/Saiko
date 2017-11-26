@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Saiko.Helpers
+namespace SaiCore.Helpers
 {
     class RandomBitmap
     {
@@ -21,7 +21,7 @@ namespace Saiko.Helpers
                 int row = i / 200;
                 int col = i % 200;
                 if (row % 2 != 0) col = 200 - col - 1;
-                result.SetPixel(row, col, Color.FromArgb(r, g, b));
+                result.SetPixel(row, col, System.Drawing.Color.FromArgb(r, g, b));
             }
             return result;
         }

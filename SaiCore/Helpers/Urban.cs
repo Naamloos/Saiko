@@ -7,7 +7,7 @@ using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Saiko.Helpers
+namespace SaiCore.Helpers
 {
     public class List
     {
@@ -58,7 +58,7 @@ namespace Saiko.Helpers
     {
         public async static Task<KeyValuePair<bool, Data>> GetDataAsync(string query)
         {
-            using(var http = new HttpClient())
+            using (var http = new HttpClient())
             {
                 var result = await http.GetStringAsync($"http://api.urbandictionary.com/v0/define?term={WebUtility.UrlEncode(query)}");
                 var data = JsonConvert.DeserializeObject<Data>(result);

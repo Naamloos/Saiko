@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 // Partly based off of very old nadeko code but improved over the year(s)
 // Don't hate if u masturbate lmao
-namespace Saiko.Helpers
+namespace SaiCore.Helpers
 {
     public enum RequestHttpMethod
     {

@@ -2,7 +2,7 @@
 using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
 
-namespace Saiko.Commands
+namespace SaiCore.Commands
 {
     [Group("hentai"), Aliases("h"), Description("You want the tiddy? Hop into an NSFW channel first please."), Hidden]
     public class Hentai
