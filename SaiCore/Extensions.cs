@@ -21,7 +21,7 @@ namespace SaiCore
             }
             else if (image.Where(x => x != '^').Count() == 0 && image.Contains('^'))
             {
-                var msgs = await ctx.Channel.GetMessagesAsync(100, ctx.Message.Id);
+                var msgs = await ctx.Channel.GetMessagesAsync(100);
                 foreach (DiscordMessage m in msgs)
                 {
                     if (m.Attachments.Count > 0)

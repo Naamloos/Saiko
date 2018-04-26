@@ -7,15 +7,14 @@
 
   <ItemGroup>
     <PackageReference Include="CSharpOSU" Version="1.4.5" />
-    <PackageReference Include="DSharpPlus" Version="4.0.0-beta-00379" />
-    <PackageReference Include="DSharpPlus.CommandsNext" Version="4.0.0-beta-00379" />
-    <PackageReference Include="DSharpPlus.Interactivity" Version="4.0.0-beta-00379" />
-    <PackageReference Include="DSharpPlus.VoiceNext" Version="4.0.0-beta-00379" />
-    <PackageReference Include="Microsoft.CodeAnalysis.Scripting" Version="2.6.0-beta3" />
-    <PackageReference Include="Microsoft.Net.Compilers" Version="2.6.0-beta3" />
-    <PackageReference Include="SixLabors.ImageSharp" Version="1.0.0-beta0002" />
-    <PackageReference Include="SixLabors.ImageSharp.Drawing" Version="1.0.0-beta0002" />
-    <PackageReference Include="System.Drawing.Common" Version="4.5.0-preview1-25914-04" />
+    <PackageReference Include="DSharpPlus" Version="4.0.0-beta-00445" />
+    <PackageReference Include="DSharpPlus.CommandsNext" Version="4.0.0-beta-00445" />
+    <PackageReference Include="DSharpPlus.Interactivity" Version="4.0.0-beta-00445" />
+    <PackageReference Include="Microsoft.CodeAnalysis.Scripting" Version="2.8.0-beta4" />
+    <PackageReference Include="Microsoft.Net.Compilers" Version="2.8.0-beta4" />
+    <PackageReference Include="SixLabors.ImageSharp" Version="1.0.0-beta0003" />
+    <PackageReference Include="SixLabors.ImageSharp.Drawing" Version="1.0.0-beta0003" />
+    <PackageReference Include="System.Drawing.Common" Version="4.5.0-preview2-26406-04" />
   </ItemGroup>
 
   <ItemGroup>

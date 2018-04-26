@@ -2,7 +2,6 @@
 using DSharpPlus;
 using DSharpPlus.CommandsNext;
 using DSharpPlus.Interactivity;
-using DSharpPlus.VoiceNext;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
 using SaiCore.Entities;
@@ -14,6 +13,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using DSharpPlus.Entities;
+using SaiCore.Helpers;
 
 namespace SaiCore
 {
@@ -22,7 +22,6 @@ namespace SaiCore
         internal DiscordClient _client;
         internal InteractivityExtension _interactivity;
         internal CommandsNextExtension _cnext;
-        internal VoiceNextExtension _vnext;
         internal Config _config;
         internal CancellationTokenSource _cts;
         internal OsuClient _osu;
@@ -54,12 +53,10 @@ namespace SaiCore
 
             this._interactivity = _client.UseInteractivity(new InteractivityConfiguration()
             {
-                PaginationBehaviour = TimeoutBehaviour.DeleteReactions,
+                PaginationBehavior = TimeoutBehaviour.DeleteReactions,
                 PaginationTimeout = TimeSpan.FromSeconds(60),
                 Timeout = TimeSpan.FromSeconds(60)
             });
-
-            this._vnext = _client.UseVoiceNext();
 
             var deps = new ServiceCollection()
                 .AddSingleton(this)
@@ -73,12 +70,13 @@ namespace SaiCore
                 EnableMentionPrefix = true,
                 IgnoreExtraArguments = true,
                 Selfbot = false,
-                StringPrefix = _config.Prefix,
+                StringPrefixes = new List<string>() { _config.Prefix },
                 Services = deps
             });
 
-            this._cnext.RegisterCommands<Commands.Main>();
-            this._cnext.RegisterCommands<Commands.Hentai>();
+			this._cnext.SetHelpFormatter<HelpFormatter>();
+
+			this._cnext.RegisterCommands(Assembly.GetExecutingAssembly());
 
             this._cts = new CancellationTokenSource();
 
@@ -93,6 +91,11 @@ namespace SaiCore
             _client.Ready += async e =>
             {
                 await _client.UpdateStatusAsync(new DiscordActivity("anime :3", ActivityType.Watching), UserStatus.Online);
+            };
+
+            _cnext.CommandErrored += async e =>
+            {
+                _client.DebugLogger.LogMessage(LogLevel.Critical, "OOF", $"{e.Exception.ToString()}", DateTime.Now);
             };
 
             _osu = new OsuClient(_config.OsuToken);
