@@ -36,7 +36,7 @@ namespace SaiCore.Commands
             var b = new DiscordEmbedBuilder();
             b.WithTitle("Saiko on Github")
                 .WithDescription("Saiko is an open-source Discord bot written using the [DSharpPlus](https://github.com/NaamloosDT/DSharpPlus) Library.\nRead more about her in her [Wiki](https://github.com/NaamloosDT/Saiko/wiki).")
-                .WithImageUrl(ctx.Client.CurrentUser.AvatarUrl)
+                .WithThumbnailUrl(ctx.Client.CurrentUser.AvatarUrl)
                 .WithColor(this.bot._config.Color)
                 .WithFooter("❤❤❤ Thank you for using Saiko! ❤❤❤")
                 .WithUrl("https://github.com/NaamloosDT/Saiko")
