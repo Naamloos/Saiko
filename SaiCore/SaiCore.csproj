@@ -7,17 +7,21 @@
 
   <ItemGroup>
     <PackageReference Include="CSharpOSU" Version="1.4.5" />
-    <PackageReference Include="DSharpPlus" Version="4.0.0-beta-00445" />
-    <PackageReference Include="DSharpPlus.CommandsNext" Version="4.0.0-beta-00445" />
-    <PackageReference Include="DSharpPlus.Interactivity" Version="4.0.0-beta-00445" />
-    <PackageReference Include="Microsoft.CodeAnalysis.Scripting" Version="2.8.0-beta4" />
-    <PackageReference Include="Microsoft.Net.Compilers" Version="2.8.0-beta4" />
-    <PackageReference Include="SixLabors.ImageSharp" Version="1.0.0-beta0003" />
-    <PackageReference Include="SixLabors.ImageSharp.Drawing" Version="1.0.0-beta0003" />
-    <PackageReference Include="System.Drawing.Common" Version="4.5.0-preview2-26406-04" />
+    <PackageReference Include="DSharpPlus" Version="4.0.0-beta-00460" />
+    <PackageReference Include="DSharpPlus.CommandsNext" Version="4.0.0-beta-00460" />
+    <PackageReference Include="DSharpPlus.Interactivity" Version="4.0.0-beta-00460" />
+    <PackageReference Include="Microsoft.CodeAnalysis.Scripting" Version="2.8.2" />
+    <PackageReference Include="Microsoft.Net.Compilers" Version="2.8.2" />
+    <PackageReference Include="SixLabors.ImageSharp" Version="1.0.0-beta0004" />
+    <PackageReference Include="SixLabors.ImageSharp.Drawing" Version="1.0.0-beta0004" />
+    <PackageReference Include="System.Drawing.Common" Version="4.5.0" />
+    <PackageReference Include="WebSocketSharp.CustomHeaders.Standard" Version="1.0.2" />
   </ItemGroup>
 
   <ItemGroup>
+    <None Update="config.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="font.ttf">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

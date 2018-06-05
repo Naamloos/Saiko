@@ -18,6 +18,30 @@ namespace SaiCore.Commands
 			this.bot = bot;
 		}
 
+		[Command("connect")]
+		[Description("[voice]Connect to a voice channel")]
+		public async Task VoiceAsync(CommandContext ctx, DiscordChannel chn)
+		{
+			await ctx.Guild.ConnectWithoutVnext(chn);
+			await ctx.RespondAsync("Connected!");
+		}
+
+		[Command("play")]
+		[Description("[voice]Play a song")]
+		public async Task PlayAsync(CommandContext ctx, string song)
+		{
+			var s = await bot._lavalink.PlaySong(ctx.Guild.Id, song);
+			await ctx.RespondAsync($"Playing! **{s.Title}**");
+		}
+
+		[Command("play")]
+		[Description("[voice]Stop a song")]
+		public async Task PlayAsync(CommandContext ctx)
+		{
+			await bot._lavalink.StopSong(ctx.Guild.Id);
+			await ctx.RespondAsync($"Stopped!**");
+		}
+
 		[Command("guess")]
 		[Description("[Fun]A fun little game where everyone has to guess the number!")]
 		public async Task GuessAsync(CommandContext ctx, int Minimum, int Maximum, TimeSpan Timeout)
