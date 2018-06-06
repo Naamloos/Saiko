@@ -24,6 +24,9 @@ namespace SaiCore.Entities
         [JsonProperty("malcredentials")]
         internal string MyAnimeList = "username:password";
 
+		[JsonProperty("lavalinkpassword")]
+		internal string LavalinkPassword = "password";
+
         [JsonIgnore]
         internal DiscordColor Color => new DiscordColor(_color);
 

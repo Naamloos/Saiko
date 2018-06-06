@@ -99,7 +99,7 @@ namespace SaiCore
 			{
 				await _client.UpdateStatusAsync(new DiscordActivity("anime :3", ActivityType.Watching), UserStatus.Online);
 
-				this._lavalink = new Lavalink("test", 1, 6942, 2333, this._client.CurrentUser.Id, this._client, "127.0.0.1");
+				this._lavalink = new Lavalink(_config.LavalinkPassword, 1, 6942, 2333, this._client.CurrentUser.Id, this._client, "127.0.0.1");
 
 				_lavalink.LavalinkEventReceived += async ev =>
 				{
