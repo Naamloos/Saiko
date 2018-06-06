@@ -71,7 +71,8 @@ namespace SaiCore.Commands
 		[Description("[Voice]Shows current queue")]
 		public async Task QueueAsync(CommandContext ctx)
 		{
-			var sngs = bot._lavalinkqueue.Select(x => $"`{x.Info.Title}` [{x.Info.Author}]").ToList();
+			int ind = 0;
+			var sngs = bot._lavalinkqueue.Select(x => { ind++; return $"{ind}: `{x.Info.Title}` [{x.Info.Author}]"; }).ToList();
 			var pages = new List<Page>();
 
 			while(sngs.Count() > 0)
@@ -84,7 +85,7 @@ namespace SaiCore.Commands
 				sngs.RemoveAll(x => taken.Contains(x));
 			}
 
-			await bot._interactivity.SendPaginatedMessage(ctx.Channel, ctx.User, pages);
+			await bot._interactivity.SendPaginatedMessage(ctx.Channel, ctx.User, pages, emojis: new PaginationEmojis(ctx.Client));
 		}
 
 		[Command("connect")]
