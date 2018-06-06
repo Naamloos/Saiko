@@ -85,7 +85,7 @@ namespace SaiCore.Commands
 				sngs.RemoveAll(x => taken.Contains(x));
 			}
 
-			await bot._interactivity.SendPaginatedMessage(ctx.Channel, ctx.User, pages, emojis: new PaginationEmojis(ctx.Client));
+			await bot._interactivity.SendPaginatedMessage(ctx.Channel, ctx.User, pages, emojis: new PaginationEmojis(ctx.Client), timeoutbehaviouroverride: TimeoutBehaviour.DeleteMessage);
 		}
 
 		[Command("connect")]
