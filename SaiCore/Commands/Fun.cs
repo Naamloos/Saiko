@@ -2,6 +2,7 @@
 using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.Entities;
+using DSharpPlus.Interactivity;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -68,9 +69,21 @@ namespace SaiCore.Commands
 
 		[Command("queue")]
 		[Description("[Voice]Shows current queue")]
-		public async Task QueueAsync(CommandContext ctx, DiscordChannel chn)
+		public async Task QueueAsync(CommandContext ctx)
 		{
-			var pages = bot._interactivity.GeneratePagesInEmbeds(string.Join("\n", bot._lavalinkqueue.Select(x => $"`{x.Info.Title}` [{x.Info.Author}]")));
+			var sngs = bot._lavalinkqueue.Select(x => $"`{x.Info.Title}` [{x.Info.Author}]").ToList();
+			var pages = new List<Page>();
+
+			while(sngs.Count() > 0)
+			{
+				var taken = sngs.Take(10);
+				pages.Add(new Page()
+				{
+					Embed = new DiscordEmbedBuilder().WithDescription(string.Join("\n", taken)).Build()
+				});
+				sngs.RemoveAll(x => taken.Contains(x));
+			}
+
 			await bot._interactivity.SendPaginatedMessage(ctx.Channel, ctx.User, pages);
 		}
 
