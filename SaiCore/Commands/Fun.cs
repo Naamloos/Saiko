@@ -18,28 +18,200 @@ namespace SaiCore.Commands
 			this.bot = bot;
 		}
 
+		[Command("playpriority")]
+		[Description("[Voice]Play a song right away")]
+		[RequireUserPermissions(Permissions.BanMembers)]
+		public async Task PlayPriorityAsync(CommandContext ctx, string song)
+		{
+			var res = await bot._lavalink.ResolveSongAsync(song);
+			var hasstream = false;
+
+			res.RemoveAll(x =>
+			{
+				if (x.Info.IsStream)
+				{
+					hasstream = true;
+					return true;
+				}
+				return false;
+			});
+
+			if (res.Count > 0)
+			{
+				if (!bot._lavalink.IsPlaying(ctx.Guild.Id))
+				{
+					bot._lavalink.PlaySong(res[0], ctx.Guild.Id);
+					await ctx.RespondAsync($"Started playing: **{res[0].Info.Title}** by _**{res[0].Info.Author}**_{(res.Count > 1 ? $" and added {res.Count - 1} others from this playlist to the queue" : "")}!");
+					res.RemoveAt(0);
+				}
+				else
+				{
+					await ctx.RespondAsync($"Added **{res[0].Info.Title}**  by _**{res[0].Info.Author}**_ {(res.Count > 1 ? $" and {res.Count - 1} others from this playlist" : "")} to the beginning of the queue!");
+				}
+
+				res.AddRange(bot._lavalinkqueue);
+				bot._lavalinkqueue = res;
+
+				if (bot._queuechannels.Keys.Contains(ctx.Guild.Id))
+					bot._queuechannels[ctx.Guild.Id] = ctx.Channel.Id;
+				else
+					bot._queuechannels.Add(ctx.Guild.Id, ctx.Channel.Id);
+			}
+			else
+			{
+				if (hasstream)
+					await ctx.RespondAsync("I don't want to play streams!");
+				else
+					await ctx.RespondAsync("Couldn't resolve that link!");
+			}
+		}
+
+		[Command("queue")]
+		[Description("[Voice]Shows current queue")]
+		public async Task QueueAsync(CommandContext ctx, DiscordChannel chn)
+		{
+			var pages = bot._interactivity.GeneratePagesInEmbeds(string.Join("\n", bot._lavalinkqueue.Select(x => $"`{x.Info.Title}` [{x.Info.Author}]")));
+			await bot._interactivity.SendPaginatedMessage(ctx.Channel, ctx.User, pages);
+		}
+
 		[Command("connect")]
-		[Description("[voice]Connect to a voice channel")]
-		public async Task VoiceAsync(CommandContext ctx, DiscordChannel chn)
+		[Description("[Voice]Connect to a voice channel")]
+		public async Task ConnectAsync(CommandContext ctx, DiscordChannel chn)
 		{
 			await ctx.Guild.ConnectWithoutVnext(chn);
 			await ctx.RespondAsync("Connected!");
 		}
 
-		[Command("play")]
-		[Description("[voice]Play a song")]
-		public async Task PlayAsync(CommandContext ctx, string song)
+		[Command("connect")]
+		[Description("[Voice]Connect to a voice channel")]
+		public async Task ConnectAsync(CommandContext ctx)
 		{
-			var s = await bot._lavalink.PlaySong(ctx.Guild.Id, song);
-			await ctx.RespondAsync($"Playing! **{s.Title}**");
+			if (ctx.Member?.VoiceState?.Channel != null)
+			{
+				await ctx.Guild.ConnectWithoutVnext(ctx.Member.VoiceState.Channel);
+				await ctx.RespondAsync("Connected!");
+			}
+			else
+			{
+				await ctx.RespondAsync("You're not connected to voice!");
+			}
+		}
+
+		[Command("disconnect")]
+		[Description("[Voice]Connect to a voice channel")]
+		public async Task DisonnectAsync(CommandContext ctx)
+		{
+			if (ctx.Guild.Members.First(x => x.Id == ctx.Client.CurrentUser.Id)?.VoiceState?.Channel != null)
+			{
+				await ctx.Guild.DisonnectVoiceWithoutVnext();
+				await ctx.RespondAsync("Disconnected!");
+			}
+			else
+			{
+				await ctx.RespondAsync("I'm not connected to voice!");
+			}
 		}
 
 		[Command("play")]
-		[Description("[voice]Stop a song")]
-		public async Task PlayAsync(CommandContext ctx)
+		[Description("[Voice]Play a song")]
+		public async Task PlayAsync(CommandContext ctx, string song)
 		{
-			await bot._lavalink.StopSong(ctx.Guild.Id);
-			await ctx.RespondAsync($"Stopped!**");
+			var res = await bot._lavalink.ResolveSongAsync(song);
+			var hasstream = false;
+
+			res.RemoveAll(x => 
+			{
+				if (x.Info.IsStream) {
+					hasstream = true;
+					return true;
+				}
+				return false;
+			});
+
+			if (res.Count > 0)
+			{
+				if (!bot._lavalink.IsPlaying(ctx.Guild.Id))
+				{
+					bot._lavalink.PlaySong(res[0], ctx.Guild.Id);
+					await ctx.RespondAsync($"Started playing: **{res[0].Info.Title}** by _**{res[0].Info.Author}**_{(res.Count > 1 ? $" and added {res.Count - 1} others from this playlist to the queue" : "")}!");
+					res.RemoveAt(0);
+				}
+				else
+				{
+					await ctx.RespondAsync($"Added **{res[0].Info.Title}**  by _**{res[0].Info.Author}**_ {(res.Count > 1 ? $" and {res.Count - 1} others from this playlist" : "")} to the queue!");
+				}
+
+				bot._lavalinkqueue.AddRange(res);
+
+				if (bot._queuechannels.Keys.Contains(ctx.Guild.Id))
+					bot._queuechannels[ctx.Guild.Id] = ctx.Channel.Id;
+				else
+					bot._queuechannels.Add(ctx.Guild.Id, ctx.Channel.Id);
+			}
+			else
+			{
+				if(hasstream)
+					await ctx.RespondAsync("I don't want to play streams!");
+				else
+					await ctx.RespondAsync("Couldn't resolve that link!");
+			}
+		}
+
+		[Command("stop")]
+		[Description("[Voice]Stop playing alltogether")]
+		[RequireUserPermissions(Permissions.BanMembers)]
+		public async Task StopAsync(CommandContext ctx)
+		{
+			bot._lavalink.StopSong(ctx.Guild.Id);
+			bot._lavalinkqueue.Clear();
+			await ctx.RespondAsync($"Stopped!");
+		}
+
+		[Command("skip")]
+		[Description("[Voice]Skips this song")]
+		[RequireUserPermissions(Permissions.BanMembers)]
+		public async Task SkipAsync(CommandContext ctx)
+		{
+			if (bot._lavalinkqueue.Count > 0)
+			{
+				await Task.Delay(1000);
+				bot._lavalink.PlaySong(bot._lavalinkqueue[0], ctx.Guild.Id);
+				// TODO: make async and notify guild of new song
+				await ctx.RespondAsync($"Skipped this song and started **{bot._lavalinkqueue[0].Info.Title}** by _**{bot._lavalinkqueue[0].Info.Author}**_!");
+				bot._lavalinkqueue.RemoveAt(0);
+			}
+			else
+			{
+				await ctx.RespondAsync($"Skipped this song!");
+			}
+		}
+
+		[Command("clearqueue")]
+		[Description("[Voice]Clears queue but keeps playing")]
+		[RequireUserPermissions(Permissions.BanMembers)]
+		public async Task ClearQueueAsync(CommandContext ctx)
+		{
+			bot._lavalinkqueue.Clear();
+			await ctx.RespondAsync($"Cleared queue!");
+		}
+
+		[Command("shuffle")]
+		[Description("[Voice]Shuffles the queue")]
+		[RequireUserPermissions(Permissions.BanMembers)]
+		public async Task ShuffleAsync(CommandContext ctx)
+		{
+			if (bot._lavalinkqueue.Count > 1)
+				bot._lavalinkqueue.Shuffle();
+
+			await ctx.RespondAsync($"Shuffled whatever is in the queue!");
+		}
+
+		[Command("volume")]
+		[Description("[Voice]Set song volume")]
+		public async Task StopAsync(CommandContext ctx, int volume)
+		{
+			bot._lavalink.SetVolume(ctx.Guild.Id, volume);
+			await ctx.RespondAsync($"Set volume to {volume}!");
 		}
 
 		[Command("guess")]

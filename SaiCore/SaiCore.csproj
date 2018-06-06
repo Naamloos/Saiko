@@ -15,7 +15,7 @@
     <PackageReference Include="SixLabors.ImageSharp" Version="1.0.0-beta0004" />
     <PackageReference Include="SixLabors.ImageSharp.Drawing" Version="1.0.0-beta0004" />
     <PackageReference Include="System.Drawing.Common" Version="4.5.0" />
-    <PackageReference Include="WebSocketSharp.CustomHeaders.Standard" Version="1.0.2" />
+    <PackageReference Include="WebSocket4Net" Version="0.15.2" />
   </ItemGroup>
 
   <ItemGroup>

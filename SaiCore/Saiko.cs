@@ -28,6 +28,8 @@ namespace SaiCore
 		internal DateTimeOffset BotStart;
 		internal DateTimeOffset SocketStart;
 		internal Lavalink _lavalink;
+		internal List<LavalinkSongResolve> _lavalinkqueue;
+		internal Dictionary<ulong, ulong> _queuechannels;
 
 		public Saiko()
 		{
@@ -40,6 +42,10 @@ namespace SaiCore
 				Environment.Exit(0);
 				return;
 			}
+
+			this._lavalinkqueue = new List<LavalinkSongResolve>();
+
+			this._queuechannels = new Dictionary<ulong, ulong>();
 
 			this._config = Config.Load("config.json");
 
@@ -92,8 +98,28 @@ namespace SaiCore
 			_client.Ready += async e =>
 			{
 				await _client.UpdateStatusAsync(new DiscordActivity("anime :3", ActivityType.Watching), UserStatus.Online);
-				_lavalink = new Lavalink("test", 1, e.Client.CurrentUser.Id, e.Client);
-				_lavalink.Connect();
+
+				this._lavalink = new Lavalink("test", 1, 6942, 2333, this._client.CurrentUser.Id, this._client, "127.0.0.1");
+
+				_lavalink.LavalinkEventReceived += async ev =>
+				{
+					if (ev.Type == "TrackEndEvent" &&ev.Reason == "FINISHED")
+					{
+						if (_lavalinkqueue.Count > 0)
+						{
+							await Task.Delay(1000);
+							var sng = _lavalinkqueue[0];
+							ev.Lavalink.PlaySong(sng, ulong.Parse(ev.GuildId));
+
+							var chn = await _client.GetChannelAsync(_queuechannels[ulong.Parse(ev.GuildId)]);
+							await chn.SendMessageAsync($"Started playing the next song: **{sng.Info.Title}** by _**{sng.Info.Author}**_");
+
+							_lavalinkqueue.Remove(sng);
+						}
+					}
+				};
+
+				await this._lavalink.ConnectAsync();
 			};
 
 			_cnext.CommandErrored += async e =>

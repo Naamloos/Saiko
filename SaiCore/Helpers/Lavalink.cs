@@ -2,13 +2,13 @@
 using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
-using WebSocketSharp;
+using WebSocket4Net;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using DSharpPlus.EventArgs;
 using DSharpPlus;
 using System.Net.Http;
 using System.Linq;
+using DSharpPlus.EventArgs;
 
 namespace SaiCore.Helpers
 {
@@ -17,61 +17,185 @@ namespace SaiCore.Helpers
 		WebSocket ws;
 		private string _password;
 		private int _num_shards;
-		private ulong _user_id;
+		private int _websocketport;
+		private int _restport;
+		private string _host;
 		private DiscordClient _client;
 		private Dictionary<ulong, string> _session_ids;
+		private List<ulong> _active_guilds;
 
-		public Lavalink(string password, int num_shards, ulong user_id, DiscordClient client)
+		public event AsyncEventHandler<LavalinkEvent> LavalinkEventReceived
+		{
+			add { this._lavalinkEventReceived.Register(value); }
+			remove { this._lavalinkEventReceived.Unregister(value); }
+		}
+		private AsyncEvent<LavalinkEvent> _lavalinkEventReceived;
+
+		public Lavalink(string password, int num_shards, int websocketport, int restport, ulong user_id, DiscordClient client, string host = "127.0.0.1")
 		{
 			this._password = password;
 			this._num_shards = num_shards;
-			this._user_id = user_id;
 			this._client = client;
+			this._websocketport = websocketport;
+			this._restport = restport;
+			this._host = host;
 
-			this.ws = new WebSocket("ws://127.0.0.1:6942")
-			{
-				CustomHeaders = new Dictionary<string, string>()
-				{
-					{ "Authorization", password },
-					{ "Num-shards", num_shards.ToString() },
-					{ "User-Id", user_id.ToString() }
-				}
-			};
+			List<KeyValuePair<string, string>> headers = new List<KeyValuePair<string, string>>();
+			headers.Add(new KeyValuePair<string, string>("Authorization", _password));
+			headers.Add(new KeyValuePair<string, string>("Num-shards", _num_shards.ToString()));
+			headers.Add(new KeyValuePair<string, string>("User-Id", _client.CurrentUser.Id.ToString()));
 
-			this.ws.OnMessage += OnMessage;
-			this.ws.OnError += OnError;
-			this.ws.OnOpen += OnOpen;
-			this.ws.OnClose += OnClose;
+			this.ws = new WebSocket($"ws://{host}:{websocketport}", customHeaderItems: headers);
+
+			this.ws.MessageReceived += OnMessage;
+			this.ws.Error += OnError;
+			this.ws.Opened += OnOpen;
+			this.ws.Closed += OnClose;
 
 			this._client.VoiceServerUpdated += _client_VoiceServerUpdated;
 			this._client.VoiceStateUpdated += _client_VoiceStateUpdated;
 			this._session_ids = new Dictionary<ulong, string>();
+			this._active_guilds = new List<ulong>();
+
+			this._lavalinkEventReceived = new AsyncEvent<LavalinkEvent>(EventErrorHandler, "EventReceived");
 		}
 
-		public async Task<LavalinkSongInfo> PlaySong(ulong guild_id, string song)
+		internal void EventErrorHandler(string evname, Exception ex)
 		{
-			var resolve = await ResolveSong(song);
+			Console.WriteLine($"oof oof error in {evname}\n{ex.ToString()}\n");
+		}
 
+		/// <summary>
+		/// Plays a song to a guild. Make sure to connect to a voice channel first!
+		/// </summary>
+		/// <param name="song">Resolved song object. Use ResolveSongAsync to resolve a song!</param>
+		/// <param name="guild_id">Guild to play to.</param>
+		public void PlaySong(LavalinkSongResolve song, ulong guild_id)
+		{
+			TestConnect();
 			var payload = new LavalinkPlay()
 			{
 				GuildId = guild_id.ToString(),
-				Track = resolve.Track,
+				Track = song.Track,
 				StartTime = 0,
-				EndTime = resolve.Info.Length
+				EndTime = song.Info.Length
 			};
 
 			ws.Send(JsonConvert.SerializeObject(payload));
-			return resolve.Info;
+
+			if (!_active_guilds.Contains(guild_id))
+				_active_guilds.Add(guild_id);
 		}
 
-		public async Task StopSong(ulong guild_id)
+		/// <summary>
+		/// Stops playing in this guild.
+		/// </summary>
+		/// <param name="guild_id">Guild to stop playing in.</param>
+		public void StopSong(ulong guild_id)
 		{
+			TestConnect();
 			var payload = new LavalinkStop()
 			{
 				GuildId = guild_id.ToString()
 			};
 
 			ws.Send(JsonConvert.SerializeObject(payload));
+
+			if (_active_guilds.Contains(guild_id))
+				_active_guilds.RemoveAll(x => x == guild_id);
+		}
+
+		/// <summary>
+		/// Returns whether music is being played in this guild.
+		/// </summary>
+		/// <param name="guild_id">Guild to check for.</param>
+		/// <returns></returns>
+		public bool IsPlaying(ulong guild_id) => _active_guilds.Contains(guild_id);
+
+		/// <summary>
+		/// Resolves a song link for use with Lavalink.
+		/// </summary>
+		/// <param name="song">Song url to resolve.</param>
+		/// <returns></returns>
+		public async Task<List<LavalinkSongResolve>> ResolveSongAsync(string song)
+		{
+			using (HttpClient http = new HttpClient())
+			{
+				http.DefaultRequestHeaders.Add("Authorization", _password);
+				try
+				{
+					var resp = await http.GetStringAsync($"http://{_host}:{_restport}/loadtracks?identifier={song}");
+					JArray j = JArray.Parse(resp);
+					List<LavalinkSongResolve> songs = new List<LavalinkSongResolve>();
+					foreach (var obj in j)
+					{
+						songs.Add(obj.ToObject<LavalinkSongResolve>());
+					}
+					return songs;
+				}
+				catch (Exception ex)
+				{
+					Console.WriteLine($"ech\n{ex.ToString()}");
+					return null;
+				}
+			}
+		}
+
+		/// <summary>
+		/// This (un)pauses a song.
+		/// </summary>
+		/// <param name="guild_id">Guild to (un)pause in.</param>
+		/// <param name="paused">Whether you want to pause or unpause.</param>
+		public void PauseSong(ulong guild_id, bool paused)
+		{
+			TestConnect();
+			var payload = new LavalinkPause()
+			{
+				GuildId = guild_id.ToString(),
+				Pause = paused
+			};
+
+			if (_active_guilds.Contains(guild_id))
+				ws.Send(JsonConvert.SerializeObject(payload));
+		}
+
+		/// <summary>
+		/// Seeks to a position in a song.
+		/// </summary>
+		/// <param name="guild_id">Guild to seek in.</param>
+		/// <param name="positon">Position to seek to. (milliseconds)</param>
+		public void SeekSong(ulong guild_id, int positon)
+		{
+			TestConnect();
+			var payload = new LavalinkSeek()
+			{
+				GuildId = guild_id.ToString(),
+				Position = positon
+			};
+
+			if (_active_guilds.Contains(guild_id))
+				ws.Send(JsonConvert.SerializeObject(payload));
+		}
+
+		/// <summary>
+		/// Sets player volume in a guild.
+		/// </summary>
+		/// <param name="guild_id">Guild to set volume in.</param>
+		/// <param name="volume">New volume (ranges from 0 to 150).</param>
+		public void SetVolume(ulong guild_id, int volume)
+		{
+			TestConnect();
+			if (volume < 0 || volume > 150)
+				throw new ArgumentOutOfRangeException("Volume may only be between 0 and 150!!");
+
+			var payload = new LavalinkVolume()
+			{
+				GuildId = guild_id.ToString(),
+				Volume = volume
+			};
+
+			if (_active_guilds.Contains(guild_id))
+				ws.Send(JsonConvert.SerializeObject(payload));
 		}
 
 		private async Task _client_VoiceStateUpdated(VoiceStateUpdateEventArgs e)
@@ -81,7 +205,8 @@ namespace SaiCore.Helpers
 				if (_session_ids.Keys.Contains(e.Guild.Id))
 					_session_ids.Remove(e.Guild.Id);
 				_session_ids.Add(e.Guild.Id, e.SessionId);
-			}catch(Exception ex)
+			}
+			catch (Exception ex)
 			{
 				Console.WriteLine($"vsu: \n{ex.ToString()}\n");
 			}
@@ -92,18 +217,18 @@ namespace SaiCore.Helpers
 			try
 			{
 				var payload = new LavalinkVoiceUpdate()
-			{
-				Event = new VoiceServerUpdate()
 				{
-					Endpoint = e.Endpoint,
+					Event = new VoiceServerUpdate()
+					{
+						Endpoint = e.Endpoint,
+						GuildId = e.Guild.Id.ToString(),
+						Token = e.VoiceToken
+					},
 					GuildId = e.Guild.Id.ToString(),
-					Token = e.VoiceToken
-				},
-				GuildId = e.Guild.Id.ToString(),
-				SessionId = _session_ids[e.Guild.Id]
-			};
+					SessionId = _session_ids[e.Guild.Id]
+				};
 
-			ws.Send(JsonConvert.SerializeObject(payload));
+				ws.Send(JsonConvert.SerializeObject(payload));
 			}
 			catch (Exception ex)
 			{
@@ -111,13 +236,37 @@ namespace SaiCore.Helpers
 			}
 		}
 
-		private void OnMessage(object sender, MessageEventArgs e)
+		private void OnMessage(object sender, MessageReceivedEventArgs e)
 		{
 			// WS Message!
-			Console.WriteLine($"{e.Data}\n");
+			var obj = JObject.Parse(e.Message);
+			string opcode = obj["op"].ToString();
+
+			switch (opcode)
+			{
+				default:
+					Console.WriteLine($"Unknown message received:\n{e.Message}\n");
+					break;
+				case "event":
+					var ev = obj.ToObject<LavalinkEvent>();
+					ev.Lavalink = this;
+					HandleEvent(ev).ConfigureAwait(false).GetAwaiter().GetResult();
+					break;
+			}
 		}
 
-		private void OnError(object sender, ErrorEventArgs e)
+		public void TestConnect()
+		{
+			if (ws.State != WebSocketState.Open)
+				ws.Open();
+		}
+
+		private async Task HandleEvent(LavalinkEvent e)
+		{
+			await _lavalinkEventReceived.InvokeAsync(e);
+		}
+
+		private void OnError(object sender, EventArgs e)
 		{
 			// WS Error...
 		}
@@ -132,32 +281,13 @@ namespace SaiCore.Helpers
 			// WS Close...
 		}
 
-		private async Task<LavalinkSongResolve> ResolveSong(string song)
+		public async Task ConnectAsync()
 		{
-			using (HttpClient http = new HttpClient())
-			{
-				http.DefaultRequestHeaders.Add("Authorization", _password);
-				try
-				{
-					var resp = await http.GetStringAsync($"http://127.0.0.1:2333/loadtracks?identifier={song}");
-					JArray j = JArray.Parse(resp);
-					return j[0].ToObject<LavalinkSongResolve>();
-				}
-				catch(Exception ex)
-				{
-					Console.WriteLine($"ech\n{ex.ToString()}");
-					return null;
-				}
-			}
-		}
-
-		public void Connect()
-		{
-			ws.Connect();
+			await ws.OpenAsync();
 		}
 	}
 
-	class VoiceServerUpdate
+	internal class VoiceServerUpdate
 	{
 		[JsonProperty("token")]
 		public string Token;
@@ -169,10 +299,10 @@ namespace SaiCore.Helpers
 		public string Endpoint;
 	}
 
-	class LavalinkSongResolve
+	public class LavalinkSongResolve
 	{
 		[JsonProperty("track")]
-		public string Track;
+		internal string Track;
 
 		[JsonProperty("info")]
 		public LavalinkSongInfo Info;
@@ -205,15 +335,18 @@ namespace SaiCore.Helpers
 		public string Uri;
 	}
 
-	class LavalinkMessage
+	public class LavalinkMessage
 	{
 		[JsonProperty("op")]
 		public string Opcode;
+
+		[JsonIgnore]
+		public Lavalink Lavalink;
 	}
 
-	class LavalinkVoiceUpdate : LavalinkMessage
+	public class LavalinkVoiceUpdate : LavalinkMessage
 	{
-		public LavalinkVoiceUpdate()
+		internal LavalinkVoiceUpdate()
 		{
 			this.Opcode = "voiceUpdate";
 		}
@@ -225,12 +358,12 @@ namespace SaiCore.Helpers
 		public string SessionId;
 
 		[JsonProperty("event")]
-		public VoiceServerUpdate Event;
+		internal VoiceServerUpdate Event;
 	}
 
-	class LavalinkPlay : LavalinkMessage
+	public class LavalinkPlay : LavalinkMessage
 	{
-		public LavalinkPlay()
+		internal LavalinkPlay()
 		{
 			this.Opcode = "play";
 		}
@@ -248,9 +381,9 @@ namespace SaiCore.Helpers
 		public long EndTime;
 	}
 
-	class LavalinkStop : LavalinkMessage
+	public class LavalinkStop : LavalinkMessage
 	{
-		public LavalinkStop()
+		internal LavalinkStop()
 		{
 			this.Opcode = "stop";
 		}
@@ -259,9 +392,9 @@ namespace SaiCore.Helpers
 		public string GuildId;
 	}
 
-	class LavalinkPause : LavalinkMessage
+	public class LavalinkPause : LavalinkMessage
 	{
-		public LavalinkPause()
+		internal LavalinkPause()
 		{
 			this.Opcode = "pause";
 		}
@@ -273,9 +406,9 @@ namespace SaiCore.Helpers
 		public bool Pause;
 	}
 
-	class LavalinkSeek : LavalinkMessage
+	public class LavalinkSeek : LavalinkMessage
 	{
-		public LavalinkSeek()
+		internal LavalinkSeek()
 		{
 			this.Opcode = "seek";
 		}
@@ -287,9 +420,23 @@ namespace SaiCore.Helpers
 		public long Position;
 	}
 
-	class LavalinkDestroy : LavalinkMessage
+	public class LavalinkVolume : LavalinkMessage
 	{
-		public LavalinkDestroy()
+		internal LavalinkVolume()
+		{
+			this.Opcode = "volume";
+		}
+
+		[JsonProperty("guildId")]
+		public string GuildId;
+
+		[JsonProperty("volume")]
+		public int Volume;
+	}
+
+	public class LavalinkDestroy : LavalinkMessage
+	{
+		internal LavalinkDestroy()
 		{
 			this.Opcode = "destroy";
 		}
@@ -298,9 +445,9 @@ namespace SaiCore.Helpers
 		public string GuildId;
 	}
 
-	class LavalinkPlayerUpdate : LavalinkMessage
+	public class LavalinkPlayerUpdate : LavalinkMessage
 	{
-		public LavalinkPlayerUpdate()
+		internal LavalinkPlayerUpdate()
 		{
 			this.Opcode = "playerUpdate";
 		}
@@ -309,8 +456,10 @@ namespace SaiCore.Helpers
 		public string GuildId;
 	}
 
-	class LavalinkState
+	public class LavalinkState
 	{
+		internal LavalinkState() { }
+
 		[JsonProperty("time")]
 		public long Time;
 
@@ -318,11 +467,24 @@ namespace SaiCore.Helpers
 		public long Position;
 	}
 
-	class LavalinkEvent : LavalinkMessage
+	public class LavalinkEvent : AsyncEventArgs
 	{
-		public LavalinkEvent()
-		{
-			this.Opcode = "event";
-		}
+		[JsonIgnore]
+		public Lavalink Lavalink;
+
+		[JsonProperty("op")]
+		public string Opcode { get { return "event"; } }
+
+		[JsonProperty("reason")]
+		public string Reason;
+
+		[JsonProperty("type")]
+		public string Type;
+
+		[JsonProperty("track")]
+		public string Track;
+
+		[JsonProperty("guildId")]
+		public string GuildId;
 	}
 }
