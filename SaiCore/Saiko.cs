@@ -28,7 +28,7 @@ namespace SaiCore
 		internal DateTimeOffset BotStart;
 		internal DateTimeOffset SocketStart;
 		internal Lavalink _lavalink;
-		internal List<LavalinkSongResolve> _lavalinkqueue;
+		internal Dictionary<ulong, List<LavalinkSongResolve>> _lavalinkqueue;
 		internal Dictionary<ulong, ulong> _queuechannels;
 
 		public Saiko()
@@ -43,7 +43,7 @@ namespace SaiCore
 				return;
 			}
 
-			this._lavalinkqueue = new List<LavalinkSongResolve>();
+			this._lavalinkqueue = new Dictionary<ulong, List<LavalinkSongResolve>>();
 
 			this._queuechannels = new Dictionary<ulong, ulong>();
 
@@ -108,13 +108,13 @@ namespace SaiCore
 						if (_lavalinkqueue.Count > 0)
 						{
 							await Task.Delay(1000);
-							var sng = _lavalinkqueue[0];
+							var sng = _lavalinkqueue[ulong.Parse(ev.GuildId)][0];
 							ev.Lavalink.PlaySong(sng, ulong.Parse(ev.GuildId));
 
 							var chn = await _client.GetChannelAsync(_queuechannels[ulong.Parse(ev.GuildId)]);
 							await chn.SendMessageAsync($"Started playing the next song: **{sng.Info.Title}** by _**{sng.Info.Author}**_");
 
-							_lavalinkqueue.Remove(sng);
+							_lavalinkqueue[ulong.Parse(ev.GuildId)].Remove(sng);
 						}
 					}
 				};

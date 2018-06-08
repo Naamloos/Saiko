@@ -263,6 +263,18 @@ namespace SaiCore.Helpers
 
 		private async Task HandleEvent(LavalinkEvent e)
 		{
+			if(e.Type == "TrackStuckEvent")
+			{
+				var payload = new LavalinkPlay()
+				{
+					GuildId = e.GuildId,
+					Track = e.Track,
+					StartTime = 0,
+				};
+
+				ws.Send(JsonConvert.SerializeObject(payload));
+			}
+
 			await _lavalinkEventReceived.InvokeAsync(e);
 		}
 
@@ -374,11 +386,11 @@ namespace SaiCore.Helpers
 		[JsonProperty("track")]
 		public string Track;
 
-		[JsonProperty("startTime")]
-		public long StartTime;
+		[JsonProperty("startTime", NullValueHandling = NullValueHandling.Ignore)]
+		public long? StartTime;
 
-		[JsonProperty("endTime")]
-		public long EndTime;
+		[JsonProperty("endTime", NullValueHandling = NullValueHandling.Ignore)]
+		public long? EndTime;
 	}
 
 	public class LavalinkStop : LavalinkMessage

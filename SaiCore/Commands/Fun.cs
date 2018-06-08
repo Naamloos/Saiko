@@ -50,8 +50,8 @@ namespace SaiCore.Commands
 					await ctx.RespondAsync($"Added **{res[0].Info.Title}**  by _**{res[0].Info.Author}**_ {(res.Count > 1 ? $" and {res.Count - 1} others from this playlist" : "")} to the beginning of the queue!");
 				}
 
-				res.AddRange(bot._lavalinkqueue);
-				bot._lavalinkqueue = res;
+				res.AddRange(bot._lavalinkqueue[ctx.Guild.Id]);
+				bot._lavalinkqueue[ctx.Guild.Id] = res;
 
 				if (bot._queuechannels.Keys.Contains(ctx.Guild.Id))
 					bot._queuechannels[ctx.Guild.Id] = ctx.Channel.Id;
@@ -72,7 +72,7 @@ namespace SaiCore.Commands
 		public async Task QueueAsync(CommandContext ctx)
 		{
 			int ind = 0;
-			var sngs = bot._lavalinkqueue.Select(x => { ind++; return $"{ind}: `{x.Info.Title}` [{x.Info.Author}]"; }).ToList();
+			var sngs = bot._lavalinkqueue[ctx.Guild.Id].Select(x => { ind++; return $"{ind}: `{x.Info.Title}` [{x.Info.Author}]"; }).ToList();
 			var pages = new List<Page>();
 
 			while(sngs.Count() > 0)
@@ -155,7 +155,7 @@ namespace SaiCore.Commands
 					await ctx.RespondAsync($"Added **{res[0].Info.Title}**  by _**{res[0].Info.Author}**_ {(res.Count > 1 ? $" and {res.Count - 1} others from this playlist" : "")} to the queue!");
 				}
 
-				bot._lavalinkqueue.AddRange(res);
+				bot._lavalinkqueue[ctx.Guild.Id].AddRange(res);
 
 				if (bot._queuechannels.Keys.Contains(ctx.Guild.Id))
 					bot._queuechannels[ctx.Guild.Id] = ctx.Channel.Id;
@@ -189,10 +189,10 @@ namespace SaiCore.Commands
 			if (bot._lavalinkqueue.Count > 0)
 			{
 				await Task.Delay(1000);
-				bot._lavalink.PlaySong(bot._lavalinkqueue[0], ctx.Guild.Id);
+				bot._lavalink.PlaySong(bot._lavalinkqueue[ctx.Guild.Id][0], ctx.Guild.Id);
 				// TODO: make async and notify guild of new song
-				await ctx.RespondAsync($"Skipped this song and started **{bot._lavalinkqueue[0].Info.Title}** by _**{bot._lavalinkqueue[0].Info.Author}**_!");
-				bot._lavalinkqueue.RemoveAt(0);
+				await ctx.RespondAsync($"Skipped this song and started **{bot._lavalinkqueue[ctx.Guild.Id][0].Info.Title}** by _**{bot._lavalinkqueue[ctx.Guild.Id][0].Info.Author}**_!");
+				bot._lavalinkqueue[ctx.Guild.Id].RemoveAt(0);
 			}
 			else
 			{
@@ -215,7 +215,7 @@ namespace SaiCore.Commands
 		public async Task ShuffleAsync(CommandContext ctx)
 		{
 			if (bot._lavalinkqueue.Count > 1)
-				bot._lavalinkqueue.Shuffle();
+				bot._lavalinkqueue[ctx.Guild.Id].Shuffle();
 
 			await ctx.RespondAsync($"Shuffled whatever is in the queue!");
 		}
